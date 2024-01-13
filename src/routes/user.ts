@@ -3,6 +3,8 @@ import { getUsers, getCurrentUser, CreateUser } from "../controllers/user";
 
 const userRoutes = Router();
 
-userRoutes.get("/users", getUsers);
-userRoutes.get("/users/:userId", getCurrentUser);
-userRoutes.post("/users", CreateUser);
+userRoutes.get("/", getUsers);
+userRoutes.get("/:userId", getCurrentUser);
+userRoutes.post("/", CreateUser);
+
+export default userRoutes;
