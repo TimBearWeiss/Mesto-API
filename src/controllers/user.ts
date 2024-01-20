@@ -28,7 +28,11 @@ export const CreateUser = (req: Request, res: Response) => {
 
   User.create({ name, about, avatar })
     // вернём записанные в базу данные
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     // данные не записались, вернём ошибку
     .catch((err) => res.status(500).send({ message: "Произошла ошибка" }));
 };
+
+export const updateProfile = (req: Request, res: Response) => {};
+
+export const updateAvatar = (req: Request, res: Response) => {};
