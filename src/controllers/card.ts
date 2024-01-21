@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import Card from "models/card";
+import Card from "../models/card";
 
 export const getCards = (req: Request, res: Response) => {
   Card.find({})
@@ -10,15 +10,17 @@ export const getCards = (req: Request, res: Response) => {
 export const createCard = (req: Request, res: Response) => {
   console.log(req.user._id); // _id станет доступен
   const { name, link } = req.body;
+  const { _id } = req.user!;
 
-  Card.create({ name, link })
+  Card.create({ name, link, owner: _id })
     .then((user) => res.send(user))
     // данные не записались, вернём ошибку
-    .catch((err) => res.status(500).send({ message: "Произошла ошибка" }));
+    .catch(() => res.status(500).send({ message: "Произошла ошибка" }));
 };
 
 export const deleteCard = (req: Request, res: Response) => {
-  Card.findByIdAndDelete(req.params.id)
+  const { cardId } = req.params;
+  Card.findByIdAndDelete(cardId)
     .then((card) => {
       if (!card) {
         res.status(404).send({ message: "Карточка не найдена" });
@@ -36,14 +38,10 @@ const updateLike = (
   next: NextFunction,
   method: string
 ) => {
-  const {
-    params: { id },
-  } = req;
-  Card.findByIdAndUpdate(
-    id,
-    { [method]: { likes: req.user._id } },
-    { new: true }
-  )
+  const { cardId } = req.params;
+  const { _id } = req.user!;
+
+  Card.findByIdAndUpdate(cardId, { [method]: { likes: _id } }, { new: true })
     .then((card) => {
       if (!card) {
         res.status(404).send("Карточка не найдена");
