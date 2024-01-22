@@ -1,10 +1,16 @@
 import express from "express";
 import mongoose from "mongoose";
-// Импортируем типы для объектов запроса и ответа Express
+const rateLimit = require("express-rate-limit");
 import { Request, Response, NextFunction } from "express";
 import router from "./routes/routes";
+
 // Слушаем 3000 порт
 const { PORT = 3000, BASE_PATH } = process.env;
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 минут
+  max: 100, // 100 запросов с одного IP
+});
 
 // Создаём экземпляр приложения Express
 const app: express.Express = express();
@@ -24,8 +30,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
   next();
 });
-
+/// подключаем пути
 app.use(router);
+
+/// подключаем ограничитель запросов для защиты от DoS-атак.
+app.use(limiter);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
