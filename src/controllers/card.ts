@@ -24,7 +24,7 @@ export const createCard = (req: Request, res: Response) => {
 
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(Bad_Request).send("Ошибка валидации");
+        res.status(Bad_Request).send({ message: "Ошибка валидации" });
       } else {
         res.status(Internal_Server_Error).send({ message: "Произошла ошибка" });
       }
@@ -37,12 +37,13 @@ export const deleteCard = (req: Request, res: Response) => {
     .then((card) => {
       if (!card) {
         res.status(Not_Found).send({ message: "Карточка не найдена" });
+      } else {
+        res.send(card);
       }
-      res.send(card);
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(Bad_Request).send("Некорректный id карточки");
+        res.status(Bad_Request).send({ message: "Некорректный id карточки" });
       } else {
         res.status(Internal_Server_Error).send({ message: "Произошла ошибка" });
       }
@@ -63,14 +64,14 @@ const updateLike = (
   Card.findByIdAndUpdate(cardId, { [method]: { likes: _id } }, { new: true })
     .then((card) => {
       if (!card) {
-        res.status(Not_Found).send("Карточка не найдена");
+        res.status(Not_Found).send({ message: "Карточка не найдена" });
       } else {
         res.send(card);
       }
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(Bad_Request).send("Некорректный id карточки");
+        res.status(Bad_Request).send({ message: "Некорректный id карточки" });
       } else {
         res.status(Internal_Server_Error).send({ message: "Произошла ошибка" });
       }

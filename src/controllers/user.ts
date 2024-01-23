@@ -22,12 +22,14 @@ export const getCurrentUser = (req: Request, res: Response) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(Not_Found).send("Пользователь не найден");
+        res.status(Not_Found).send({ message: "Пользователь не найден" });
       }
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(Bad_Request).send("Некорректный id пользователя");
+        res
+          .status(Bad_Request)
+          .send({ message: "Некорректный id пользователя" });
       } else {
         res.status(Internal_Server_Error).send({ message: "Произошла ошибка" });
       }
@@ -43,7 +45,7 @@ export const CreateUser = (req: Request, res: Response) => {
     // данные не записались, вернём ошибку
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(Bad_Request).send("Ошибка валидации");
+        res.status(Bad_Request).send({ message: "Ошибка валидации" });
       } else {
         res.status(Internal_Server_Error).send({ message: "Произошла ошибка" });
       }
@@ -63,12 +65,12 @@ export const updateProfile = (req: Request, res: Response) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(Not_Found).send("Пользователь не найден");
+        res.status(Not_Found).send({ message: "Пользователь не найден" });
       }
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(Bad_Request).send("Ошибка валидации");
+        res.status(Bad_Request).send({ message: "Ошибка валидации" });
       } else {
         res.status(Internal_Server_Error).send({ message: "Произошла ошибка" });
       }
@@ -84,12 +86,12 @@ export const updateAvatar = (req: Request, res: Response) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(Not_Found).send("Пользователь не найден");
+        res.status(Not_Found).send({ message: "Пользователь не найден" });
       }
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(Bad_Request).send("Ошибка валидации");
+        res.status(Bad_Request).send({ message: "Ошибка валидации" });
       } else {
         res.status(Internal_Server_Error).send({ message: "Произошла ошибка" });
       }
