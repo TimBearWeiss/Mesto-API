@@ -1,37 +1,33 @@
 import { Request, Response } from "express";
-import {
-  Internal_Server_Error,
-  Bad_Request,
-  Not_Found,
-} from "../constans/errors";
+import { internalServerError, badRequest, notFound } from "../constans/errors";
 import User from "../models/user";
 
 export const getUsers = (req: Request, res: Response) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() =>
-      res.status(Internal_Server_Error).send({ message: "Произошла ошибка" })
-    );
+    .catch(() => {
+      res.status(internalServerError).send({ message: "Произошла ошибка" });
+    });
 };
 
 export const getCurrentUser = (req: Request, res: Response) => {
-  const _id = req.params.userId;
+  const id = req.params.userId;
 
-  User.findById(_id)
+  User.findById(id)
     .then((user) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(Not_Found).send({ message: "Пользователь не найден" });
+        res.status(notFound).send({ message: "Пользователь не найден" });
       }
     })
     .catch((err) => {
       if (err.name === "CastError") {
         res
-          .status(Bad_Request)
+          .status(badRequest)
           .send({ message: "Некорректный id пользователя" });
       } else {
-        res.status(Internal_Server_Error).send({ message: "Произошла ошибка" });
+        res.status(internalServerError).send({ message: "Произошла ошибка" });
       }
     });
 };
@@ -45,9 +41,9 @@ export const CreateUser = (req: Request, res: Response) => {
     // данные не записались, вернём ошибку
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(Bad_Request).send({ message: "Ошибка валидации" });
+        res.status(badRequest).send({ message: "Ошибка валидации" });
       } else {
-        res.status(Internal_Server_Error).send({ message: "Произошла ошибка" });
+        res.status(internalServerError).send({ message: "Произошла ошибка" });
       }
     });
 };
@@ -65,14 +61,14 @@ export const updateProfile = (req: Request, res: Response) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(Not_Found).send({ message: "Пользователь не найден" });
+        res.status(notFound).send({ message: "Пользователь не найден" });
       }
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(Bad_Request).send({ message: "Ошибка валидации" });
+        res.status(badRequest).send({ message: "Ошибка валидации" });
       } else {
-        res.status(Internal_Server_Error).send({ message: "Произошла ошибка" });
+        res.status(internalServerError).send({ message: "Произошла ошибка" });
       }
     });
 };
@@ -86,14 +82,14 @@ export const updateAvatar = (req: Request, res: Response) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(Not_Found).send({ message: "Пользователь не найден" });
+        res.status(notFound).send({ message: "Пользователь не найден" });
       }
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(Bad_Request).send({ message: "Ошибка валидации" });
+        res.status(badRequest).send({ message: "Ошибка валидации" });
       } else {
-        res.status(Internal_Server_Error).send({ message: "Произошла ошибка" });
+        res.status(internalServerError).send({ message: "Произошла ошибка" });
       }
     });
 };

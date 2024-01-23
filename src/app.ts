@@ -1,12 +1,12 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-import { Request, Response, NextFunction } from "express";
 import router from "./routes/routes";
-import { limiter } from "./utils/limiterConfig";
+import limiter from "./utils/limiterConfig";
+
 const helmet = require("helmet");
 
 // Слушаем 3000 порт
-const { PORT = 3000, BASE_PATH } = process.env;
+const { PORT = 3000 } = process.env;
 
 // Создаём экземпляр приложения Express
 const app: express.Express = express();

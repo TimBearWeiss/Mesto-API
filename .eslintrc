@@ -19,6 +19,8 @@
     "import/extensions": [".js", ".ts"]
   },
   "rules": {
+    "quotes": ["error", "double"],
+    "comma-dangle": "off",
     "import/extensions": [
       "error",
       "ignorePackages",
