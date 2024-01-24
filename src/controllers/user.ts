@@ -1,27 +1,34 @@
 import { Request, Response } from "express";
+import { internalServerError, badRequest, notFound } from "../constans/errors";
 import User from "../models/user";
 
 export const getUsers = (req: Request, res: Response) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() => res.status(500).send({ message: "Произошла ошибка" }));
+    .catch(() => {
+      res.status(internalServerError).send({ message: "Произошла ошибка" });
+    });
 };
 
 export const getCurrentUser = (req: Request, res: Response) => {
-  const _id = req.params.userId;
+  const id = req.params.userId;
 
-  User.findById(_id)
+  User.findById(id)
     .then((user) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(404).send("Пользователь не найден");
+        res.status(notFound).send({ message: "Пользователь не найден" });
       }
     })
-    .catch((error) => {
-      res
-        .status(500)
-        .send("Произошла ошибка при поиске пользователя: " + error);
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res
+          .status(badRequest)
+          .send({ message: "Некорректный id пользователя" });
+      } else {
+        res.status(internalServerError).send({ message: "Произошла ошибка" });
+      }
     });
 };
 
@@ -32,7 +39,13 @@ export const CreateUser = (req: Request, res: Response) => {
     // вернём записанные в базу данные
     .then((user) => res.send(user))
     // данные не записались, вернём ошибку
-    .catch(() => res.status(500).send({ message: "Произошла ошибка" }));
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        res.status(badRequest).send({ message: "Ошибка валидации" });
+      } else {
+        res.status(internalServerError).send({ message: "Произошла ошибка" });
+      }
+    });
 };
 
 export const updateProfile = (req: Request, res: Response) => {
@@ -48,13 +61,15 @@ export const updateProfile = (req: Request, res: Response) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(404).send("Пользователь не найден");
+        res.status(notFound).send({ message: "Пользователь не найден" });
       }
     })
-    .catch((error) => {
-      res
-        .status(500)
-        .send("Произошла ошибка при поиске пользователя: " + error);
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        res.status(badRequest).send({ message: "Ошибка валидации" });
+      } else {
+        res.status(internalServerError).send({ message: "Произошла ошибка" });
+      }
     });
 };
 
@@ -67,12 +82,14 @@ export const updateAvatar = (req: Request, res: Response) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(404).send("Пользователь не найден");
+        res.status(notFound).send({ message: "Пользователь не найден" });
       }
     })
-    .catch((error) => {
-      res
-        .status(500)
-        .send("Произошла ошибка при поиске пользователя: " + error);
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        res.status(badRequest).send({ message: "Ошибка валидации" });
+      } else {
+        res.status(internalServerError).send({ message: "Произошла ошибка" });
+      }
     });
 };

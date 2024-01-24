@@ -1,10 +1,12 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-// Импортируем типы для объектов запроса и ответа Express
-import { Request, Response, NextFunction } from "express";
 import router from "./routes/routes";
+import limiter from "./utils/limiterConfig";
+
+const helmet = require("helmet");
+
 // Слушаем 3000 порт
-const { PORT = 3000, BASE_PATH } = process.env;
+const { PORT = 3000 } = process.env;
 
 // Создаём экземпляр приложения Express
 const app: express.Express = express();
@@ -25,6 +27,13 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+/// подключаем ограничитель запросов для защиты от DoS-атак.
+app.use(limiter);
+
+// защита http заголовков
+app.use(helmet());
+
+/// подключаем пути
 app.use(router);
 
 app.listen(PORT, () => {
