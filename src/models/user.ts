@@ -1,23 +1,38 @@
 import mongoose from "mongoose";
+const validator = require("validator");
 
 type TUser = {
   name: string;
   about: string;
+  email: string;
+  password: string;
   avatar: string;
 };
 
 const userSchema = new mongoose.Schema<TUser>({
   name: {
-    type: String, minlength: 2, maxlength: 30, required: true,
+    type: String,
+    minlength: 2,
+    maxlength: 30,
+    required: true,
   },
   about: {
-    type: String, minlength: 2, maxlength: 200, required: true,
+    type: String,
+    minlength: 2,
+    maxlength: 200,
+    required: true,
   },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: {
+      validator: validator.isEmail,
+      message: "Введите корректный адрес электронной почты",
+    },
+  },
+  password: { type: String, required: true },
   avatar: { type: String, required: true },
 });
 
 export default mongoose.model<TUser>("user", userSchema);
-
-// name — имя пользователя, строка от 2 до 30 символов, обязательное поле;
-// about — информация о пользователе, строка от 2 до 200 символов, обязательное поле;
-// avatar — ссылка на аватарку, строка, обязательное поле.
