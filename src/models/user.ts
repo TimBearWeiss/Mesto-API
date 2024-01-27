@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
+const bcrypt = require("bcryptjs");
 const validator = require("validator");
 
 type TUser = {
   name: string;
   about: string;
+  avatar: string;
   email: string;
   password: string;
-  avatar: string;
 };
 
 const userSchema = new mongoose.Schema<TUser>({
@@ -14,13 +15,19 @@ const userSchema = new mongoose.Schema<TUser>({
     type: String,
     minlength: 2,
     maxlength: 30,
-    required: true,
+    default: "Жак-Ив Кусто",
   },
   about: {
     type: String,
     minlength: 2,
     maxlength: 200,
     required: true,
+    default: "Исследователь",
+  },
+  avatar: {
+    type: String,
+    default:
+      "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
   },
   email: {
     type: String,
@@ -28,11 +35,29 @@ const userSchema = new mongoose.Schema<TUser>({
     unique: true,
     validate: {
       validator: validator.isEmail,
-      message: "Введите корректный адрес электронной почты",
+      message: "Введите корректный корректный адрес электронной почты",
     },
   },
   password: { type: String, required: true },
-  avatar: { type: String, required: true },
 });
+
+userSchema.static(
+  "findUserByCredentials",
+  function findUserByCredentials(email: string, password: string) {
+    return this.findOne({ email }).then((user: any) => {
+      if (!user) {
+        return Promise.reject(new Error("Неправильные почта или пароль"));
+      }
+
+      return bcrypt.compare(password, user.password).then((matched: any) => {
+        if (!matched) {
+          return Promise.reject(new Error("Неправильные почта или пароль"));
+        }
+
+        return user; // теперь user доступен
+      });
+    });
+  }
+);
 
 export default mongoose.model<TUser>("user", userSchema);
