@@ -28,10 +28,16 @@ export const createCard = (req: Request, res: Response) => {
 
 export const deleteCard = (req: Request, res: Response) => {
   const { cardId } = req.params;
+  const userId = req.user._id;
+
   Card.findByIdAndDelete(cardId)
     .then((card) => {
       if (!card) {
         res.status(notFound).send({ message: "Карточка не найдена" });
+      }
+      // если айди создателя карточки отличается от айди пользователя
+      if (card!.owner.toString() !== userId) {
+        res.status(notFound).send({ message: "Чужую карточку нельзя удалить" });
       } else {
         res.send(card);
       }

@@ -4,13 +4,14 @@ import {
   getCurrentUser,
   updateProfile,
   updateAvatar,
+  getAuthUser,
 } from "../controllers/user";
 
 const userRoutes = Router();
 
 userRoutes.get("/", getUsers);
 userRoutes.get("/:userId", getCurrentUser);
-// userRoutes.post("/", CreateUser);
+userRoutes.get("/me", getAuthUser);
 //
 userRoutes.patch("/me", updateProfile);
 userRoutes.patch("/me/avatar", updateAvatar);

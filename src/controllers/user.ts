@@ -124,3 +124,25 @@ export const updateAvatar = (req: Request, res: Response) => {
       }
     });
 };
+
+export const getAuthUser = (req: Request, res: Response) => {
+  const { _id } = req.user!;
+
+  User.findById(_id)
+    .then((user: any) => {
+      if (user) {
+        res.send(user);
+      } else {
+        res.status(notFound).send({ message: "Пользователь не найден" });
+      }
+    })
+    .catch((err: any) => {
+      if (err.name === "CastError") {
+        res
+          .status(badRequest)
+          .send({ message: "Некорректный id пользователя" });
+      } else {
+        res.status(internalServerError).send({ message: "Произошла ошибка" });
+      }
+    });
+};

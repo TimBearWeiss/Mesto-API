@@ -38,25 +38,27 @@ const userSchema = new mongoose.Schema<TUser>({
       message: "Введите корректный корректный адрес электронной почты",
     },
   },
-  password: { type: String, required: true },
+  password: { type: String, required: true, select: false },
 });
 
 userSchema.static(
   "findUserByCredentials",
   function findUserByCredentials(email: string, password: string) {
-    return this.findOne({ email }).then((user: any) => {
-      if (!user) {
-        return Promise.reject(new Error("Неправильные почта или пароль"));
-      }
-
-      return bcrypt.compare(password, user.password).then((matched: any) => {
-        if (!matched) {
+    return this.findOne({ email })
+      .select("+password")
+      .then((user: any) => {
+        if (!user) {
           return Promise.reject(new Error("Неправильные почта или пароль"));
         }
 
-        return user; // теперь user доступен
+        return bcrypt.compare(password, user.password).then((matched: any) => {
+          if (!matched) {
+            return Promise.reject(new Error("Неправильные почта или пароль"));
+          }
+
+          return user; // теперь user доступен
+        });
       });
-    });
   }
 );
 
