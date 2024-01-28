@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import router from "./routes/routes";
 import limiter from "./utils/limiterConfig";
 import { requestLogger, errorLogger } from "./middlewares/logger";
+import { errorHandler } from "middlewares/errorHandler";
 
 const helmet = require("helmet");
 
@@ -30,6 +31,9 @@ app.use(router);
 
 // подключаем логер ошибок
 app.use(errorLogger);
+
+// обрабатываем централизованно ошибки
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
