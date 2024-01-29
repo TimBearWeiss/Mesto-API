@@ -1,5 +1,10 @@
-import { Request, Response } from "express";
-import { internalServerError, badRequest, notFound } from "../constans/errors";
+import { Request, Response, NextFunction } from "express";
+import {
+  badRequest,
+  notFound,
+  unauthorizedError,
+  conflict,
+} from "../constans/errors";
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -17,21 +22,25 @@ export const login = (req: Request, res: Response) => {
       // вернём токен
       res.send({ token });
     })
-    .catch((err: any) => {
+    .catch(() => {
       // ошибка аутентификации
-      res.status(401).send({ message: "Ошибка авторизации" });
+      res.status(unauthorizedError).send({ message: "Ошибка авторизации" });
     });
 };
 
-export const getUsers = (req: Request, res: Response) => {
+export const getUsers = (req: Request, res: Response, next: NextFunction) => {
   User.find({})
     .then((users: any) => res.send(users))
-    .catch(() => {
-      res.status(internalServerError).send({ message: "Произошла ошибка" });
+    .catch((err: any) => {
+      next(err);
     });
 };
 
-export const getCurrentUser = (req: Request, res: Response) => {
+export const getCurrentUser = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const id = req.params.userId;
 
   User.findById(id)
@@ -48,12 +57,12 @@ export const getCurrentUser = (req: Request, res: Response) => {
           .status(badRequest)
           .send({ message: "Некорректный id пользователя" });
       } else {
-        res.status(internalServerError).send({ message: "Произошла ошибка" });
+        next(err);
       }
     });
 };
 
-export const createUser = (req: Request, res: Response) => {
+export const createUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt
     .hash(password, 10)
@@ -73,13 +82,22 @@ export const createUser = (req: Request, res: Response) => {
     .catch((err: any) => {
       if (err.name === "ValidationError") {
         res.status(badRequest).send({ message: "Ошибка валидации" });
+      }
+      if (err.code === 11000) {
+        res
+          .status(conflict)
+          .send({ message: "Почта уже используется для другого пользователя" });
       } else {
-        res.status(internalServerError).send({ message: "Произошла ошибка" });
+        next(err);
       }
     });
 };
 
-export const updateProfile = (req: Request, res: Response) => {
+export const updateProfile = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { _id } = req.user!;
   const { name, about } = req.body;
 
@@ -99,12 +117,16 @@ export const updateProfile = (req: Request, res: Response) => {
       if (err.name === "ValidationError") {
         res.status(badRequest).send({ message: "Ошибка валидации" });
       } else {
-        res.status(internalServerError).send({ message: "Произошла ошибка" });
+        next(err);
       }
     });
 };
 
-export const updateAvatar = (req: Request, res: Response) => {
+export const updateAvatar = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { _id } = req.user!;
   const { avatar } = req.body;
 
@@ -120,12 +142,16 @@ export const updateAvatar = (req: Request, res: Response) => {
       if (err.name === "ValidationError") {
         res.status(badRequest).send({ message: "Ошибка валидации" });
       } else {
-        res.status(internalServerError).send({ message: "Произошла ошибка" });
+        next(err);
       }
     });
 };
 
-export const getAuthUser = (req: Request, res: Response) => {
+export const getAuthUser = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { _id } = req.user!;
 
   User.findById(_id)
@@ -142,7 +168,7 @@ export const getAuthUser = (req: Request, res: Response) => {
           .status(badRequest)
           .send({ message: "Некорректный id пользователя" });
       } else {
-        res.status(internalServerError).send({ message: "Произошла ошибка" });
+        next(err);
       }
     });
 };

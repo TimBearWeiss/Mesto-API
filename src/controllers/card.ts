@@ -1,16 +1,16 @@
-import { Request, Response } from "express";
-import { internalServerError, badRequest, notFound } from "../constans/errors";
+import { Request, Response, NextFunction } from "express";
+import { badRequest, notFound } from "../constans/errors";
 import Card from "../models/card";
 
-export const getCards = (req: Request, res: Response) => {
+export const getCards = (req: Request, res: Response, next: NextFunction) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch(() => {
-      res.status(internalServerError).send({ message: "Произошла ошибка" });
+    .catch((err) => {
+      next(err);
     });
 };
 
-export const createCard = (req: Request, res: Response) => {
+export const createCard = (req: Request, res: Response, next: NextFunction) => {
   const { name, link } = req.body;
   const { _id } = req.user!;
 
@@ -21,12 +21,12 @@ export const createCard = (req: Request, res: Response) => {
       if (err.name === "ValidationError") {
         res.status(badRequest).send({ message: "Ошибка валидации" });
       } else {
-        res.status(internalServerError).send({ message: "Произошла ошибка" });
+        next(err);
       }
     });
 };
 
-export const deleteCard = (req: Request, res: Response) => {
+export const deleteCard = (req: Request, res: Response, next: NextFunction) => {
   const { cardId } = req.params;
   const userId = req.user._id;
 
@@ -46,14 +46,19 @@ export const deleteCard = (req: Request, res: Response) => {
       if (err.name === "CastError") {
         res.status(badRequest).send({ message: "Некорректный id карточки" });
       } else {
-        res.status(internalServerError).send({ message: "Произошла ошибка" });
+        next(err);
       }
     });
 };
 
 ///
 
-const updateLike = (req: Request, res: Response, method: string) => {
+const updateLike = (
+  req: Request,
+  res: Response,
+  method: string,
+  next: NextFunction
+) => {
   const { cardId } = req.params;
   const { _id } = req.user!;
 
@@ -69,15 +74,19 @@ const updateLike = (req: Request, res: Response, method: string) => {
       if (err.name === "CastError") {
         res.status(badRequest).send({ message: "Некорректный id карточки" });
       } else {
-        res.status(internalServerError).send({ message: "Произошла ошибка" });
+        next(err);
       }
     });
 };
 
-export const likeCard = (req: Request, res: Response) => {
-  updateLike(req, res, "$addToSet");
+export const likeCard = (req: Request, res: Response, next: NextFunction) => {
+  updateLike(req, res, "$addToSet", next);
 };
 
-export const dislikeCard = (req: Request, res: Response) => {
-  updateLike(req, res, "$pull");
+export const dislikeCard = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  updateLike(req, res, "$pull", next);
 };
