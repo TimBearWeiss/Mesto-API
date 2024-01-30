@@ -15,7 +15,7 @@ export const createCard = (req: Request, res: Response, next: NextFunction) => {
   const { _id } = req.user!;
 
   Card.create({ name, link, owner: _id })
-    .then((user) => res.send(user))
+    .then((card) => res.send(card))
 
     .catch((err) => {
       if (err.name === "ValidationError") {

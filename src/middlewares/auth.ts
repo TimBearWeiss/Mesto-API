@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { unauthorizedError } from "constans/errors";
+import { secretKey } from "constans/constants";
 const jwt = require("jsonwebtoken");
 
 export const auth = (req: Request, res: Response, next: NextFunction) => {
@@ -15,7 +16,7 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, "some-secret-key");
+    payload = jwt.verify(token, secretKey);
   } catch (err) {
     return res
       .status(unauthorizedError)

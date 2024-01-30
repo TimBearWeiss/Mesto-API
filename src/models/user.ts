@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const bcrypt = require("bcryptjs");
 const validator = require("validator");
-const isLinkValid = require("../utils/validator");
+const isAvatarLinkValid = require("../utils/validator");
 
 type TUser = {
   name: string;
@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema<TUser>({
     type: String,
     default:
       "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
-    validate: [isLinkValid, "Невалидная ссылка аватара"],
+    validate: [isAvatarLinkValid, "Невалидная ссылка аватара"],
   },
   email: {
     type: String,

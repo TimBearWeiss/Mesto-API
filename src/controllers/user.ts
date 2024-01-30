@@ -5,6 +5,7 @@ import {
   unauthorizedError,
   conflict,
 } from "../constans/errors";
+import { secretKey } from "constans/constants";
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -15,7 +16,7 @@ export const login = (req: Request, res: Response) => {
   return User.findUserByCredentials(email, password)
     .then((user: any) => {
       // аутентификация успешна! пользователь в переменной user
-      const token = jwt.sign({ _id: user._id }, "some-secret-key", {
+      const token = jwt.sign({ _id: user._id }, secretKey, {
         expiresIn: "7d",
       });
 

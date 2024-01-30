@@ -6,14 +6,15 @@ import {
   updateAvatar,
   getAuthUser,
 } from "../controllers/user";
+const celebrates = require("../middlewares/celebrates");
 
 const userRoutes = Router();
 
 userRoutes.get("/", getUsers);
-userRoutes.get("/:userId", getCurrentUser);
 userRoutes.get("/me", getAuthUser);
+userRoutes.get("/:userId", celebrates.getCurrentUser, getCurrentUser);
 //
-userRoutes.patch("/me", updateProfile);
-userRoutes.patch("/me/avatar", updateAvatar);
+userRoutes.patch("/me", celebrates.updateProfile, updateProfile);
+userRoutes.patch("/me/avatar", celebrates.updateAvatar, updateAvatar);
 
 export default userRoutes;

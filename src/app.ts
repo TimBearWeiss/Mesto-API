@@ -4,18 +4,18 @@ import router from "./routes/routes";
 import limiter from "./utils/limiterConfig";
 import { requestLogger, errorLogger } from "./middlewares/logger";
 import { errorHandler } from "middlewares/errorHandler";
-
 const helmet = require("helmet");
 
 // Слушаем 3000 порт
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, DATABASE_URL = "mongodb://localhost:27017/mestodb" } =
+  process.env;
 
 // Создаём экземпляр приложения Express
 const app: express.Express = express();
 
 app.use(express.json());
 
-mongoose.connect("mongodb://localhost:27017/mestodb");
+mongoose.connect(DATABASE_URL);
 
 /// подключаем ограничитель запросов для защиты от DoS-атак.
 app.use(limiter);
