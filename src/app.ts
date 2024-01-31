@@ -1,31 +1,21 @@
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import mongoose from "mongoose";
 import router from "./routes/routes";
 import limiter from "./utils/limiterConfig";
-
+import { requestLogger, errorLogger } from "./middlewares/logger";
+import { errorHandler } from "middlewares/errorHandler";
 const helmet = require("helmet");
 
 // Слушаем 3000 порт
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, DATABASE_URL = "mongodb://localhost:27017/mestodb" } =
+  process.env;
 
 // Создаём экземпляр приложения Express
 const app: express.Express = express();
 
-/// временные файлы
-app.get("/", (req, res) => {
-  res.send("<h1>Hello express</h1>");
-});
-
 app.use(express.json());
-mongoose.connect("mongodb://localhost:27017/mestodb");
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-  req.user = {
-    _id: "65a2cd82051721f235930ad0", // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
-
-  next();
-});
+mongoose.connect(DATABASE_URL);
 
 /// подключаем ограничитель запросов для защиты от DoS-атак.
 app.use(limiter);
@@ -33,8 +23,17 @@ app.use(limiter);
 // защита http заголовков
 app.use(helmet());
 
+// подключаем логер запросов
+app.use(requestLogger);
+
 /// подключаем пути
 app.use(router);
+
+// подключаем логер ошибок
+app.use(errorLogger);
+
+// обрабатываем централизованно ошибки
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+const isPictureLinkValid = require("../utils/validator");
 
 type TCard = {
   name: String;
@@ -15,7 +16,11 @@ const cardSchema = new mongoose.Schema<TCard>({
     maxlength: 30,
     required: true,
   },
-  link: { type: String, required: true },
+  link: {
+    type: String,
+    required: true,
+    validate: [isPictureLinkValid, "Невалидная ссылка аватара"],
+  },
   owner: { type: String, ref: "user", required: true },
   likes: { type: [{ type: mongoose.Schema.Types.ObjectId }], default: [] },
   createdAt: { type: Date, default: Date.now },

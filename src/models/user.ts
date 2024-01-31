@@ -1,23 +1,67 @@
 import mongoose from "mongoose";
+const bcrypt = require("bcryptjs");
+const validator = require("validator");
+const isAvatarLinkValid = require("../utils/validator");
 
 type TUser = {
   name: string;
   about: string;
   avatar: string;
+  email: string;
+  password: string;
 };
 
 const userSchema = new mongoose.Schema<TUser>({
   name: {
-    type: String, minlength: 2, maxlength: 30, required: true,
+    type: String,
+    minlength: 2,
+    maxlength: 30,
+    default: "Жак-Ив Кусто",
   },
   about: {
-    type: String, minlength: 2, maxlength: 200, required: true,
+    type: String,
+    minlength: 2,
+    maxlength: 200,
+    required: true,
+    default: "Исследователь",
   },
-  avatar: { type: String, required: true },
+  avatar: {
+    type: String,
+    default:
+      "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
+    validate: [isAvatarLinkValid, "Невалидная ссылка аватара"],
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: {
+      validator: validator.isEmail,
+      message: "Введите корректный корректный адрес электронной почты",
+    },
+  },
+  password: { type: String, required: true, select: false },
 });
 
-export default mongoose.model<TUser>("user", userSchema);
+userSchema.static(
+  "findUserByCredentials",
+  function findUserByCredentials(email: string, password: string) {
+    return this.findOne({ email })
+      .select("+password")
+      .then((user: any) => {
+        if (!user) {
+          return Promise.reject(new Error("Неправильные почта или пароль"));
+        }
 
-// name — имя пользователя, строка от 2 до 30 символов, обязательное поле;
-// about — информация о пользователе, строка от 2 до 200 символов, обязательное поле;
-// avatar — ссылка на аватарку, строка, обязательное поле.
+        return bcrypt.compare(password, user.password).then((matched: any) => {
+          if (!matched) {
+            return Promise.reject(new Error("Неправильные почта или пароль"));
+          }
+
+          return user; // теперь user доступен
+        });
+      });
+  }
+);
+
+export default mongoose.model<TUser>("user", userSchema);
